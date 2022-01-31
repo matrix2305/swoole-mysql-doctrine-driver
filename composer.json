@@ -1,9 +1,13 @@
 {
-    "name": "leocavalcante/swoole-postgresql-doctrine-driver",
-    "description": "A Doctrine DBAL Driver implementation on top of Swoole Coroutine PostgreSQL extension",
+    "name": "diego-ninja/swoole-mysql-doctrine-driver",
+    "description": "A Doctrine DBAL Driver implementation on top of Swoole Coroutine Mysql extension",
     "type": "library",
     "license": "MIT",
     "authors": [
+        {
+            "name": "Diego Rin Martín",
+            "email": "yosoy@diego.ninja"
+        },
         {
             "name": "leocavalcante",
             "email": "lc@leocavalcante.com"
@@ -15,6 +19,7 @@
     },
     "require": {
         "php": "^7.4|^8.0",
+        "ext-pdo": "*",
         "doctrine/dbal": "^3.0"
     },
     "suggest": {
@@ -23,11 +28,17 @@
     },
     "autoload": {
         "psr-4": {
-            "Doctrine\\DBAL\\Driver\\Swoole\\Coroutine\\PostgreSQL\\": "src/"
+            "Doctrine\\DBAL\\Driver\\Swoole\\Coroutine\\Mysql\\": "src/"
         }
     },
     "require-dev": {
         "pestphp/pest": "^1.0",
         "swoole/ide-helper": "^4.6"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "pestphp/pest-plugin": true
+        }
     }
 }

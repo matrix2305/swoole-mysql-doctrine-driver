@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Doctrine\DBAL\Driver\Swoole\Coroutine\PostgreSQL;
+namespace Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql;
 
-use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
+use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\Exception\DriverException;
+use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Swoole\ConnectionPool;
-use Swoole\Coroutine\PostgreSQL;
 
-final class Driver extends AbstractPostgreSQLDriver
+final class Driver extends AbstractMySQLDriver
 {
     public const DEFAULT_POOL_SIZE = 8;
     private static ConnectionPool $pool;
@@ -27,17 +27,12 @@ final class Driver extends AbstractPostgreSQLDriver
     }
 
     /**
+     * @throws DriverException
      * @throws ConnectionException
      */
     public function createConnection(string $dsn): Connection
     {
-        $pgsql = new PostgreSQL();
-
-        if (!$pgsql->connect($dsn)) {
-            throw ConnectionException::failed($dsn);
-        }
-
-        return new Connection($pgsql);
+        return new Connection($dsn);
     }
 
     private function dsn(array $params): string
@@ -47,10 +42,10 @@ final class Driver extends AbstractPostgreSQLDriver
         }
 
         $params['host'] ??= '127.0.0.1';
-        $params['port'] ??= 5432;
-        $params['dbname'] ??= 'postgres';
-        $params['user'] ??= 'postgres';
-        $params['password'] ??= 'postgres';
+        $params['port'] ??= 3306;
+        $params['dbname'] ??= 'mysql';
+        $params['user'] ??= 'mysql';
+        $params['password'] ??= 'mysql';
 
         return implode(';', [
             "host={$params['host']}",

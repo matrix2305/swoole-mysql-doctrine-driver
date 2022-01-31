@@ -1,62 +1,120 @@
 <?php declare(strict_types=1);
 
-namespace Doctrine\DBAL\Driver\Swoole\Coroutine\PostgreSQL;
+namespace Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Driver\Statement as StatementInterface;
+use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\Exception\DriverException;
+use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\PDO;
+use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\PDOStatement;
 use Doctrine\DBAL\ParameterType;
-use Swoole\Coroutine\PostgreSQL;
+use Doctrine\DBAL\Query\QueryException;
+use PDO as BasePDO;
+use PDOException;
 
 final class Connection implements ConnectionInterface
 {
-    private PostgreSQL $connection;
+    private PDO $connection;
 
-    public function __construct(PostgreSQL $connection)
+    /**
+     * @throws DriverException|ConnectionException
+     */
+    public function __construct($dsn, $user = null, $password = null, ?array $options = null)
     {
-        $this->connection = $connection;
+        try {
+            $this->connection = new PDO($dsn, (string) $user, (string) $password, (array) $options);
+            $this->connection->setAttribute(BasePDO::ATTR_ERRMODE, BasePDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $exception) {
+            throw DriverException::new($exception);
+        }
+
     }
 
-    public function getWrappedConnection(): PostgreSQL
+    /**
+     * @throws QueryException
+     * @throws DriverException
+     */
+    public function exec(string $sql): int
+    {
+        try {
+            return $this->connection->exec($sql);
+        } catch (PDOException $exception) {
+            throw DriverException::new($exception);
+        }
+    }
+
+    /**
+     * @throws QueryException
+     * @throws DriverException
+     */
+    public function prepare(string $sql): StatementInterface
+    {
+        try {
+            $stmt = $this->connection->prepare($sql);
+            assert($stmt instanceof PDOStatement);
+
+            return $this->createStatement($stmt);
+        } catch (PDOException $exception) {
+            throw DriverException::new($exception);
+        }
+    }
+
+    public function query(string $sql): ResultInterface
+    {
+        try {
+            $stmt = $this->connection->query($sql);
+            assert($stmt instanceof PDOStatement);
+
+            return new Result($stmt);
+        } catch (PDOException $exception) {
+            throw DriverException::new($exception);
+        }
+    }
+
+    public function quote($value, $type = ParameterType::STRING)
+    {
+        return $this->connection->quote($value, $type);
+    }
+
+    /**
+     * @throws DriverException
+     */
+    public function lastInsertId($name = null)
+    {
+        try {
+            if ($name === null) {
+                return $this->connection->lastInsertId();
+            }
+
+            return $this->connection->lastInsertId($name);
+        } catch (PDOException $exception) {
+            throw DriverException::new($exception);
+        }
+    }
+
+    protected function createStatement(PDOStatement $stmt): StatementInterface
+    {
+        return new Statement($stmt);
+    }
+
+    public function getWrappedConnection(): PDO
     {
         return $this->connection;
     }
 
-    public function prepare(string $sql): Statement
-    {
-        return new Statement($this->connection, $sql);
-    }
-
-    public function query(string $sql): Result
-    {
-        return new Result($this->connection, $this->connection->query($sql));
-    }
-
-    public function quote($value, $type = ParameterType::STRING): string
-    {
-        return "'" . $this->connection->escape($value) . "'";
-    }
-
-    public function exec(string $sql): int
-    {
-        return $this->connection->affectedRows($this->connection->query($sql));
-    }
-
-    public function lastInsertId($name = null)
-    {
-        return $this->query("SELECT CURRVAL('$name')")->fetchOne();
-    }
-
     public function beginTransaction()
     {
-        $this->connection->query('START TRANSACTION');
+        $this->connection->beginTransaction();
     }
 
     public function commit()
     {
-        $this->connection->query('COMMIT');
+        $this->connection->commit();
     }
 
     public function rollBack()
     {
-        $this->connection->query('ROLLBACK');
+        $this->connection->rollback();
     }
 }

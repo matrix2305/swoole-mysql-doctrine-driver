@@ -4,14 +4,14 @@ namespace Tests;
 
 use Swoole\Coroutine;
 
-it('executes basic selects', function (): void {
+it('executes basic selects', static function (): void {
     Coroutine\run(static function (): void {
         $actual = conn()->executeQuery('select 1+1 as total')->fetchOne();
         expect($actual)->toBe(2);
     });
 });
 
-it('executes concurrently when inside coroutines', function (): void {
+it('executes concurrently when inside coroutines', static function (): void {
     Coroutine\run(static function (): void {
         $sleep = static fn(string $test) => conn()->executeQuery("select '$test', pg_sleep(1)");
 

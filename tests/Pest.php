@@ -7,11 +7,11 @@ use Doctrine\DBAL\{Connection, Driver, DriverManager};
 function conn(): Connection
 {
     $params = [
-        'dbname' => 'postgres',
-        'user' => 'postgres',
-        'password' => 'postgres',
-        'host' => 'db',
-        'driverClass' => Driver\Swoole\Coroutine\PostgreSQL\Driver::class
+        'dbname' => 'mysql',
+        'user' => 'mysql',
+        'password' => 'mysql',
+        'host' => 'mysql',
+        'driverClass' => Driver\Swoole\Coroutine\Mysql\Driver::class
     ];
 
     return DriverManager::getConnection($params);

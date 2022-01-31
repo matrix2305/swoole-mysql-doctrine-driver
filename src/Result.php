@@ -1,67 +1,128 @@
 <?php declare(strict_types=1);
 
-namespace Doctrine\DBAL\Driver\Swoole\Coroutine\PostgreSQL;
+namespace Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql;
 
-use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
-use Swoole\Coroutine\PostgreSQL;
+use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\PDOStatement;
+use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\Exception\DriverException;
+use PDO;
+use PDOException;
 
 class Result implements ResultInterface
 {
-    private PostgreSQL $connection;
-    private $result;
+    private PDOStatement $stmt;
 
-    public function __construct(PostgreSQL $connection, $result)
+    public function __construct(PDOStatement $stmt)
     {
-        $this->connection = $connection;
-        $this->result = $result;
+        $this->stmt = $stmt;
     }
 
+    /**
+     * @throws DriverException
+     */
     public function fetchNumeric()
     {
-        return $this->connection->fetchArray($this->result);
+        return $this->fetch(PDO::FETCH_NUM);
     }
 
+    /**
+     * @throws DriverException
+     */
     public function fetchAssociative()
     {
-        return $this->connection->fetchAssoc($this->result);
+        return $this->fetch(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @throws DriverException
+     */
     public function fetchOne()
     {
-        $result = $this->connection->fetchRow($this->result);
-        return $result ? $result[0] : false;
+        return $this->fetch(PDO::FETCH_COLUMN);
     }
 
+    /**
+     * @throws DriverException
+     */
     public function fetchAllNumeric(): array
     {
-        return $this->connection->fetchAll($this->result, SW_PGSQL_NUM) ?: [];
+        return $this->fetchAll(PDO::FETCH_NUM);
     }
 
+    /**
+     * @throws DriverException
+     */
     public function fetchAllAssociative(): array
     {
-        return $this->connection->fetchAll($this->result, SW_PGSQL_ASSOC) ?: [];
+        return $this->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @throws DriverException
+     */
     public function fetchFirstColumn(): array
     {
-        return array_column($this->fetchAllNumeric(), 0);
+        return $this->fetchAll(PDO::FETCH_COLUMN);
     }
 
+    /**
+     * @throws DriverException
+     */
     public function rowCount(): int
     {
-        return $this->connection->numRows($this->result);
+        try {
+            return $this->stmt->rowCount();
+        } catch (PDOException $exception) {
+            throw DriverException::new($exception);
+        }
+
     }
 
+    /**
+     * @throws DriverException
+     */
     public function columnCount(): int
     {
-        return $this->connection->fieldCount($this->result);
+        try {
+            return $this->stmt->columnCount();
+        } catch (PDOException $exception) {
+            throw DriverException::new($exception);
+        }
     }
 
     public function free(): void
     {
-        $this->result = null;
+        $this->stmt->closeCursor();
     }
+
+    /**
+     * @throws DriverException
+     */
+    private function fetch(int $mode)
+    {
+        try {
+            return $this->stmt->fetch($mode);
+        } catch (PDOException $exception) {
+            throw DriverException::new($exception);
+        }
+    }
+
+    /**
+     * @throws DriverException
+     */
+    private function fetchAll(int $mode): array
+    {
+        try {
+            $data = $this->stmt->fetchAll($mode);
+        } catch (PDOException $exception) {
+            throw DriverException::new($exception);
+        }
+
+        assert(is_array($data));
+
+        return $data;
+    }
+
 
 
 }
