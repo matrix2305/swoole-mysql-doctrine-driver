@@ -4,12 +4,12 @@ namespace Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql;
 
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
-use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\Exception\DriverException;
-use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\Exception\UnknownParameterTypeException;
-use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\PDOStatement;
+use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception\DriverException;
+use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception\UnknownParameterTypeException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Deprecations\Deprecation;
 use PDOException;
+use PDOStatement;
 
 final class Statement implements StatementInterface
 {

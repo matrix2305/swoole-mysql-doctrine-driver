@@ -3,16 +3,15 @@
 namespace Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql;
 
 use Doctrine\DBAL\Driver\Result as ResultInterface;
-use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\PDOStatement;
-use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\Exception\DriverException;
+use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception\DriverException;
 use PDO;
 use PDOException;
 
 class Result implements ResultInterface
 {
-    private PDOStatement $stmt;
+    private \PDOStatement $stmt;
 
-    public function __construct(PDOStatement $stmt)
+    public function __construct(\PDOStatement $stmt)
     {
         $this->stmt = $stmt;
     }

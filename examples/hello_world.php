@@ -12,7 +12,7 @@ $params = [
     'dbname' => 'scalefast',
     'user' => 'root',
     'password' => 'kGWEhUy2nM8b7aZQ',
-    'host' => 'localhost',
+    'host' => '127.0.0.1',
     'driverClass' => Driver::class,
     'poolSize' => 8,
 ];
@@ -25,10 +25,12 @@ Co\run(static function() use ($conn): void {
     $wg = new Co\WaitGroup();
     $start_time = time();
 
-    foreach (range(1, 8) as $i) {
-        Co::create(static function() use (&$results, $wg, $conn): void {
+    foreach (range(0, 8) as $i) {
+        Co::create(static function() use (&$results, $wg, $conn, $i): void {
+            $start = $i*10;
             $wg->add();
-            $results[] = $conn->executeQuery('select 1, sleep(1)')->fetchOne();
+            $foo = $conn->executeQuery('select * from message limit ' . $start . ',10')->fetchAllAssociative();
+            $results[] = $foo;
             $wg->done();
         });
     }
@@ -37,5 +39,6 @@ Co\run(static function() use ($conn): void {
     $elapsed = time() - $start_time;
     $sum = array_sum($results);
 
-    echo "Two sleep(1) queries in $elapsed second, returning: $sum\n";
+    echo "$i queries in $elapsed second, returning: $sum\n";
+    print_r($results);
 });

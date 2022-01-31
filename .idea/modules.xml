@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/swoole-postgresql-doctrine-driver.iml" filepath="$PROJECT_DIR$/.idea/swoole-postgresql-doctrine-driver.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/swoole-mysql-doctrine-driver.iml" filepath="$PROJECT_DIR$/.idea/swoole-mysql-doctrine-driver.iml" />
     </modules>
   </component>
 </project>

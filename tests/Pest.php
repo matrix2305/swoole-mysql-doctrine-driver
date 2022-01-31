@@ -7,10 +7,10 @@ use Doctrine\DBAL\{Connection, Driver, DriverManager};
 function conn(): Connection
 {
     $params = [
-        'dbname' => 'mysql',
-        'user' => 'mysql',
-        'password' => 'mysql',
-        'host' => 'mysql',
+        'dbname' => 'scalefast',
+        'user' => 'root',
+        'password' => 'kGWEhUy2nM8b7aZQ',
+        'host' => '127.0.0.1',
         'driverClass' => Driver\Swoole\Coroutine\Mysql\Driver::class
     ];
 

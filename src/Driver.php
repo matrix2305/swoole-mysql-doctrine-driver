@@ -2,9 +2,11 @@
 
 namespace Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql;
 
-use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\Exception\DriverException;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
+use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception\ConnectionException;
+use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception\DriverException;
+use PDO;
 use Swoole\ConnectionPool;
 
 final class Driver extends AbstractMySQLDriver
@@ -16,7 +18,7 @@ final class Driver extends AbstractMySQLDriver
     {
         if (!isset(self::$pool)) {
             self::$pool = new ConnectionPool(
-                fn(): Connection => $this->createConnection($this->dsn($params)),
+                fn(): Connection => $this->createConnection($this->dsn($params), $params),
                 $params['poolSize'] ?? self::DEFAULT_POOL_SIZE,
             );
         }
@@ -30,9 +32,20 @@ final class Driver extends AbstractMySQLDriver
      * @throws DriverException
      * @throws ConnectionException
      */
-    public function createConnection(string $dsn): Connection
+    public function createConnection(string $dsn, array $params): Connection
     {
-        return new Connection($dsn);
+        $driverOptions = $params['driverOptions'] ?? [];
+
+        if (! empty($params['persistent'])) {
+            $driverOptions[PDO::ATTR_PERSISTENT] = true;
+        }
+
+        return new Connection(
+            $dsn,
+            $params['user'] ?? '',
+            $params['password'] ?? '',
+            $driverOptions
+        );
     }
 
     private function dsn(array $params): string
@@ -44,15 +57,28 @@ final class Driver extends AbstractMySQLDriver
         $params['host'] ??= '127.0.0.1';
         $params['port'] ??= 3306;
         $params['dbname'] ??= 'mysql';
-        $params['user'] ??= 'mysql';
-        $params['password'] ??= 'mysql';
 
-        return implode(';', [
-            "host={$params['host']}",
-            "port={$params['port']}",
-            "dbname={$params['dbname']}",
-            "user={$params['user']}",
-            "password={$params['password']}",
-        ]);
+        $dsn = 'mysql:';
+        if (isset($params['host']) && $params['host'] !== '') {
+            $dsn .= 'host=' . $params['host'] . ';';
+        }
+
+        if (isset($params['port'])) {
+            $dsn .= 'port=' . $params['port'] . ';';
+        }
+
+        if (isset($params['dbname'])) {
+            $dsn .= 'dbname=' . $params['dbname'] . ';';
+        }
+
+        if (isset($params['unix_socket'])) {
+            $dsn .= 'unix_socket=' . $params['unix_socket'] . ';';
+        }
+
+        if (isset($params['charset'])) {
+            $dsn .= 'charset=' . $params['charset'] . ';';
+        }
+
+        return $dsn;
     }
 }

@@ -5,26 +5,24 @@ namespace Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
-use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\Exception\DriverException;
-use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\PDO;
-use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\PDO\PDOStatement;
+use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception\DriverException;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Query\QueryException;
-use PDO as BasePDO;
+use PDO;
 use PDOException;
+use PDOStatement;
 
 final class Connection implements ConnectionInterface
 {
     private PDO $connection;
 
     /**
-     * @throws DriverException|ConnectionException
+     * @throws DriverException
      */
     public function __construct($dsn, $user = null, $password = null, ?array $options = null)
     {
         try {
             $this->connection = new PDO($dsn, (string) $user, (string) $password, (array) $options);
-            $this->connection->setAttribute(BasePDO::ATTR_ERRMODE, BasePDO::ERRMODE_EXCEPTION);
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $exception) {
             throw DriverException::new($exception);
         }
@@ -32,7 +30,6 @@ final class Connection implements ConnectionInterface
     }
 
     /**
-     * @throws QueryException
      * @throws DriverException
      */
     public function exec(string $sql): int
@@ -45,7 +42,6 @@ final class Connection implements ConnectionInterface
     }
 
     /**
-     * @throws QueryException
      * @throws DriverException
      */
     public function prepare(string $sql): StatementInterface
@@ -60,6 +56,9 @@ final class Connection implements ConnectionInterface
         }
     }
 
+    /**
+     * @throws DriverException
+     */
     public function query(string $sql): ResultInterface
     {
         try {
@@ -80,7 +79,7 @@ final class Connection implements ConnectionInterface
     /**
      * @throws DriverException
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId($name = null): bool|string
     {
         try {
             if ($name === null) {
