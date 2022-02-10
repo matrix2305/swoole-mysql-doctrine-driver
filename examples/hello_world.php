@@ -25,7 +25,7 @@ Co\run(static function() use ($conn): void {
     $wg = new Co\WaitGroup();
     $start_time = time();
 
-    foreach (range(0, 8) as $i) {
+    foreach (range(0, 1) as $i) {
         Co::create(static function() use (&$results, $wg, $conn, $i): void {
             $start = $i*10;
             $wg->add();
