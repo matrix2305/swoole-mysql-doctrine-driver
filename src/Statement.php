@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception\DriverException;
 use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception\UnknownParameterTypeException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Deprecations\Deprecation;
+use PDO;
 use PDOException;
 use PDOStatement;
 
