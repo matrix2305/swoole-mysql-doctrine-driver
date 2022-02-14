@@ -9,9 +9,9 @@ use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Driver;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $params = [
-    'dbname' => 'scalefast',
-    'user' => 'root',
-    'password' => 'kGWEhUy2nM8b7aZQ',
+    'dbname' => 'your_db',
+    'user' => 'your_user',
+    'password' => 'your_passwd',
     'host' => '127.0.0.1',
     'driverClass' => Driver::class,
     'poolSize' => 10,
