@@ -30,12 +30,15 @@ final class Driver extends AbstractMySQLDriver
         }
 
         if (!isset(self::$pool)) {
-            Octane::concurrently([function () use($params) {
-                self::$pool = new ConnectionPool(
+            [$pool] = Octane::concurrently([function () use($params) {
+                $pool = new ConnectionPool(
                     fn(): Connection => $this->createConnection($this->dsn($params), $params),
                     $params['poolSize'] ?? self::DEFAULT_POOL_SIZE,
                 );
+                return $pool;
             }]);
+
+            self::$pool = $pool;
         }
 
         $connection = self::$pool->get();
