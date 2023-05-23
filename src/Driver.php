@@ -14,7 +14,7 @@ final class Driver extends AbstractMySQLDriver
     public const DEFAULT_POOL_SIZE = 8;
     private static ConnectionPool $pool;
 
-    public function connect(array $params): ConnectionInterface
+    public function connect(array $params, $username = null, $password = null, array $driverOptions = []): ConnectionInterface
     {
         if (!isset(self::$pool)) {
             self::$pool = new ConnectionPool(
