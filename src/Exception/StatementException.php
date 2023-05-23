@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception;
+namespace Doctrine\DBAL\Driver\SwooleMySQL\Exception;
 
 class StatementException extends \Exception
 {

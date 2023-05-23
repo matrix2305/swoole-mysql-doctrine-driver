@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql;
+namespace Doctrine\DBAL\Driver\SwooleMySQL;
 
 use Doctrine\DBAL\Connection;
-use Swoole\Coroutine\MySQL;
+use SwooleMySQL;
 use Doctrine\DBAL\Driver\ResultStatement;
 
 final class SwooleConnection extends Connection

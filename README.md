@@ -1,6 +1,6 @@
 # Swoole Coroutine MySQL Doctrine DBAL Driver
 
-A `Doctrine\DBAL\Driver` implementation on top of `Swoole\Coroutine\MySQL`.
+A `Doctrine\DBAL\Driver` implementation on top of `SwooleMySQL`.
 
 ## Getting started
 
@@ -22,14 +22,14 @@ $params = [
     'user' => 'mysql',
     'password' => 'mysql',
     'host' => 'db',
-    'driverClass' => Driver\Swoole\Coroutine\Mysql\Driver::class,
+    'driverClass' => Driver\SwooleMySQL\Driver::class,
     'poolSize' => 8,
 ];
 
 $conn = DriverManager::getConnection($params);
 ```
 
-*Yes, I deliberately used the `Doctrine\DBAL\Driver` namespace + `Swoole\Coroutine\MySQL` namespace, so it is not confusing.*
+*Yes, I deliberately used the `Doctrine\DBAL\Driver` namespace + `SwooleMySQL` namespace, so it is not confusing.*
 
 #### You are ready to rock inside Coroutines (Fibers):
 

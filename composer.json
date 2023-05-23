@@ -28,7 +28,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Doctrine\\DBAL\\Driver\\Swoole\\Coroutine\\Mysql\\": "src/"
+            "Doctrine\\DBAL\\Driver\\SwooleMySQL\\": "src/"
         }
     },
     "require-dev": {

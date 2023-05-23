@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql;
+namespace Doctrine\DBAL\Driver\SwooleMySQL;
 
 use Doctrine\DBAL\Driver\Result as ResultInterface;
-use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception\DriverException;
+use Doctrine\DBAL\Driver\SwooleMySQL\Exception\DriverException;
 use PDO;
 use PDOException;
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Swoole\Coroutine as Co;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Driver;
+use Doctrine\DBAL\Driver\SwooleMySQL\Driver;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 

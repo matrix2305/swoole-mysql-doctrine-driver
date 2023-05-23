@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql;
+namespace Doctrine\DBAL\Driver\SwooleMySQL;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Swoole\Coroutine;
-use Swoole\Coroutine\MySQL;
+use SwooleMySQL;
 
 final class Driver extends AbstractMySQLDriver
 {

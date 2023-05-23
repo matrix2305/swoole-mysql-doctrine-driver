@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception;
+namespace Doctrine\DBAL\Driver\SwooleMySQL\Exception;
 
 use PDOException;
 use Throwable;

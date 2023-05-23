@@ -11,7 +11,7 @@ function conn(): Connection
         'user' => 'root',
         'password' => 'kGWEhUy2nM8b7aZQ',
         'host' => '127.0.0.1',
-        'driverClass' => Driver\Swoole\Coroutine\Mysql\Driver::class
+        'driverClass' => Driver\SwooleMySQL\Driver::class
     ];
 
     return DriverManager::getConnection($params);
