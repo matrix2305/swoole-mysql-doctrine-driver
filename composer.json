@@ -1,5 +1,5 @@
 {
-    "name": "diego-ninja/swoole-mysql-doctrine-driver",
+    "name": "matrix2305/swoole-mysql-doctrine-driver",
     "description": "A Doctrine DBAL Driver implementation on top of Swoole Coroutine Mysql extension",
     "type": "library",
     "license": "MIT",
