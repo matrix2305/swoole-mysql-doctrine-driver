@@ -10,6 +10,7 @@ use Doctrine\Deprecations\Deprecation;
 use PDO;
 use Swoole\ConnectionPool;
 use Swoole\Coroutine;
+use Co;
 
 final class Driver extends AbstractMySQLDriver
 {
@@ -29,7 +30,7 @@ final class Driver extends AbstractMySQLDriver
         }
 
         if (!isset(self::$pool)) {
-            Coroutine::create(function () use($params) {
+            Co\run(function () use($params) {
                 self::$pool = new ConnectionPool(
                     fn(): Connection => $this->createConnection($this->dsn($params), $params),
                     $params['poolSize'] ?? self::DEFAULT_POOL_SIZE,
