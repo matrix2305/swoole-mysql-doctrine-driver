@@ -10,6 +10,7 @@ use Doctrine\Deprecations\Deprecation;
 use PDO;
 use Swoole\ConnectionPool;
 use Swoole\Coroutine;
+use Laravel\Octane\Facades\Octane;
 
 final class Driver extends AbstractMySQLDriver
 {
@@ -29,12 +30,12 @@ final class Driver extends AbstractMySQLDriver
         }
 
         if (!isset(self::$pool)) {
-            go(function () use($params) {
+            Octane::concurrently([function () use($params) {
                 self::$pool = new ConnectionPool(
                     fn(): Connection => $this->createConnection($this->dsn($params), $params),
                     $params['poolSize'] ?? self::DEFAULT_POOL_SIZE,
                 );
-            });
+            }]);
         }
 
         $connection = self::$pool->get();
