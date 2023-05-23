@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Driver\SwooleMySQL;
 
 use Doctrine\DBAL\Connection;
-use SwooleMySQL;
+use Swoole\Coroutine\MySQL;
 use Doctrine\DBAL\Driver\ResultStatement;
 
 final class SwooleConnection extends Connection

@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Driver\SwooleMySQL;
 
 
 use Doctrine\DBAL\Driver\ResultStatement;
-use SwooleMySQL;
+use Swoole\Coroutine\MySQL;
 
 class SwooleStatement implements \IteratorAggregate, ResultStatement
 {
