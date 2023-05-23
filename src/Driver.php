@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception\DriverException;
 use Doctrine\Deprecations\Deprecation;
 use PDO;
 use Swoole\ConnectionPool;
+use Swoole\Coroutine;
 
 final class Driver extends AbstractMySQLDriver
 {
@@ -28,10 +29,12 @@ final class Driver extends AbstractMySQLDriver
         }
 
         if (!isset(self::$pool)) {
-            self::$pool = new ConnectionPool(
-                fn(): Connection => $this->createConnection($this->dsn($params), $params),
-                $params['poolSize'] ?? self::DEFAULT_POOL_SIZE,
-            );
+            Coroutine::create(function () use($params) {
+                self::$pool = new ConnectionPool(
+                    fn(): Connection => $this->createConnection($this->dsn($params), $params),
+                    $params['poolSize'] ?? self::DEFAULT_POOL_SIZE,
+                );
+            });
         }
 
         $connection = self::$pool->get();
