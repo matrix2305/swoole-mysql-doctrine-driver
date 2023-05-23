@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception\ConnectionException;
 use Doctrine\DBAL\Driver\Swoole\Coroutine\Mysql\Exception\DriverException;
+use Doctrine\Deprecations\Deprecation;
 use PDO;
 use Swoole\ConnectionPool;
 
@@ -16,6 +17,16 @@ final class Driver extends AbstractMySQLDriver
 
     public function connect(array $params, $username = null, $password = null, array $driverOptions = []): ConnectionInterface
     {
+        if (!empty($driverOptions)) {
+            $params['driverOptions'] = $driverOptions;
+        }
+        if ($username) {
+            $params['user'] = $username;
+        }
+        if ($password) {
+            $params['password'] = $password;
+        }
+
         if (!isset(self::$pool)) {
             self::$pool = new ConnectionPool(
                 fn(): Connection => $this->createConnection($this->dsn($params), $params),
@@ -80,5 +91,16 @@ final class Driver extends AbstractMySQLDriver
         }
 
         return $dsn;
+    }
+
+    public function getName()
+    {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'Driver::getName() is deprecated'
+        );
+
+        return 'mysqli';
     }
 }
