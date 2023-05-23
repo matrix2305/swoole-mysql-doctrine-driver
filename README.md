@@ -7,7 +7,7 @@ A `Doctrine\DBAL\Driver` implementation on top of `Swoole\Coroutine\MySQL`.
 ### Install
 
 ```shell
-composer require diego-ninja/swoole-mysql-doctrine-driver
+composer require matrix2305/swoole-mysql-doctrine-driver
 ```
 
 ### Usage
