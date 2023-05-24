@@ -9,25 +9,18 @@ use Swoole\Coroutine\MySQL;
 
 final class Driver extends AbstractMySQLDriver
 {
-    public static ConnectionPool $pool;
+    public static SwooleConnection $connection;
 
     public function connect(array $params, $username = null, $password = null, array $driverOptions = []): Connection
     {
-        if (isset(self::$pool) && self::$pool->getConnection()) {
-            return self::$pool->getConnection();
+        if (isset(self::$connection)) {
+            return self::$connection;
         }
 
-        if (!isset(self::$pool)) {
-            $poolSize = $params['poolSize'] ?? 10;
-            self::$pool = new ConnectionPool($poolSize);
-        }
-
-        if (!self::$pool->getConnection()) {
-            $this->setConnection($params, $username, $password, $driverOptions);
-        }
+        $this->setConnection($params, $username, $password, $driverOptions);
 
 
-        return self::connect($params, $username, $password, $driverOptions);
+        return $this->connect($params, $username, $password, $driverOptions);
     }
 
     public function setConnection(array $params, $username = null, $password = null, array $driverOptions = []) : void
@@ -52,7 +45,7 @@ final class Driver extends AbstractMySQLDriver
 
             $connection = new SwooleConnection($mysql);
 
-            self::$pool->setConnection($connection);
+            self::$connection = $connection;
         });
     }
 
