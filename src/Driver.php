@@ -4,14 +4,28 @@ namespace Doctrine\DBAL\Driver\SwooleMySQL;
 
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\Connection;
-use Doctrine\DBAL\Driver\PingableConnection;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\ParameterType;
 use Swoole\Coroutine\MySQL;
 
 final class Driver extends AbstractMySQLDriver
 {
+    public static ConnectionPool $pool;
+
     public function connect(array $params, $username = null, $password = null, array $driverOptions = []): Connection
+    {
+        if (!isset(self::$pool)) {
+            $poolSize = $params['poolSize'] ?? 10;
+            self::$pool = new ConnectionPool($poolSize);
+        }
+
+        if (!self::$pool->getConnection()) {
+            $this->setConnection($params, $username, $password, $driverOptions);
+        }
+
+
+        return self::$pool->getConnection();
+    }
+
+    public function setConnection(array $params, $username = null, $password = null, array $driverOptions = []) : void
     {
         $mysql = new MySQL();
 
@@ -30,7 +44,9 @@ final class Driver extends AbstractMySQLDriver
             'database' => $database,
         ]);
 
-        return new SwooleConnection($mysql);
+        $connection = new SwooleConnection($mysql);
+
+        self::$pool->setConnection($connection);
     }
 
     public function getName(): string
