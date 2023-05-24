@@ -31,7 +31,7 @@ final class Driver extends AbstractMySQLDriver
     public function setConnection(array $params, $username = null, $password = null, array $driverOptions = []) : void
     {
         if (class_exists('Laravel\Octane\Facades\Octane')) {
-            if (Laravel\Octane\Facades\Octane::inWorker()) {
+            if (\Laravel\Octane\Facades\Octane::inWorker()) {
                 $mysql = new MySQL();
 
                 // Set the connection parameters
