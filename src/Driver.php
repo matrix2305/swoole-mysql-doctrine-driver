@@ -5,8 +5,6 @@ namespace Doctrine\DBAL\Driver\SwooleMySQL;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\Connection;
 use Swoole\Coroutine\MySQL;
-use function Swoole\Coroutine\run;
-use Laravel\Octane\Facades\Octane;
 
 
 final class Driver extends AbstractMySQLDriver
@@ -15,6 +13,10 @@ final class Driver extends AbstractMySQLDriver
 
     public function connect(array $params, $username = null, $password = null, array $driverOptions = []): Connection
     {
+        if (isset(self::$pool) && self::$pool->getConnection()) {
+            return self::$pool->getConnection();
+        }
+
         if (!isset(self::$pool)) {
             $poolSize = $params['poolSize'] ?? 10;
             self::$pool = new ConnectionPool($poolSize);
@@ -25,7 +27,7 @@ final class Driver extends AbstractMySQLDriver
         }
 
 
-        return self::$pool->getConnection();
+        return self::connect($params, $username, $password, $driverOptions);
     }
 
     public function setConnection(array $params, $username = null, $password = null, array $driverOptions = []) : void
