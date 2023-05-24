@@ -6,6 +6,8 @@ use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\Connection;
 use Swoole\Coroutine\MySQL;
 use function Swoole\Coroutine\run;
+use Laravel\Octane\Facades\Octane;
+
 
 final class Driver extends AbstractMySQLDriver
 {
@@ -28,28 +30,55 @@ final class Driver extends AbstractMySQLDriver
 
     public function setConnection(array $params, $username = null, $password = null, array $driverOptions = []) : void
     {
-        run(function () use($params, $username, $password, $driverOptions) {
-            $mysql = new MySQL();
+        if (class_exists('Laravel\Octane\Facades\Octane')) {
+            if (Laravel\Octane\Facades\Octane::inWorker()) {
+                $mysql = new MySQL();
 
-            // Set the connection parameters
-            $host = $params['host'] ?? '127.0.0.1';
-            $port = $params['port'] ?? 3306;
-            $database = $params['dbname'] ?? '';
-            $user = $username ?? '';
-            $passwd = $password ?? '';
+                // Set the connection parameters
+                $host = $params['host'] ?? '127.0.0.1';
+                $port = $params['port'] ?? 3306;
+                $database = $params['dbname'] ?? '';
+                $user = $username ?? '';
+                $passwd = $password ?? '';
 
-            $mysql->connect([
-                'host' => $host,
-                'port' => $port,
-                'user' => $user,
-                'password' => $passwd,
-                'database' => $database,
-            ]);
+                $mysql->connect([
+                    'host' => $host,
+                    'port' => $port,
+                    'user' => $user,
+                    'password' => $passwd,
+                    'database' => $database,
+                ]);
 
-            $connection = new SwooleConnection($mysql);
+                $connection = new SwooleConnection($mysql);
 
-            self::$pool->setConnection($connection);
-        });
+                self::$pool->setConnection($connection);
+            }
+        } else {
+            run(function () use($params, $username, $password, $driverOptions) {
+                $mysql = new MySQL();
+
+                // Set the connection parameters
+                $host = $params['host'] ?? '127.0.0.1';
+                $port = $params['port'] ?? 3306;
+                $database = $params['dbname'] ?? '';
+                $user = $username ?? '';
+                $passwd = $password ?? '';
+
+                $mysql->connect([
+                    'host' => $host,
+                    'port' => $port,
+                    'user' => $user,
+                    'password' => $passwd,
+                    'database' => $database,
+                ]);
+
+                $connection = new SwooleConnection($mysql);
+
+                self::$pool->setConnection($connection);
+            });
+        }
+
+
     }
 
     public function getName(): string
