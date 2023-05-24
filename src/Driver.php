@@ -10,6 +10,7 @@ use Swoole\Coroutine\MySQL;
 final class Driver extends AbstractMySQLDriver
 {
     public static SwooleConnection $connection;
+    public static bool $initializedConnection = false;
 
     public function connect(array $params, $username = null, $password = null, array $driverOptions = []): Connection
     {
@@ -17,7 +18,10 @@ final class Driver extends AbstractMySQLDriver
             return self::$connection;
         }
 
-        $this->setConnection($params, $username, $password, $driverOptions);
+        if (!self::$initializedConnection) {
+            $this->setConnection($params, $username, $password, $driverOptions);
+            self::$initializedConnection = true;
+        }
 
 
         return $this->connect($params, $username, $password, $driverOptions);
