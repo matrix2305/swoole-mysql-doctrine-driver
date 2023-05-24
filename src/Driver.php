@@ -4,57 +4,89 @@ namespace Doctrine\DBAL\Driver\SwooleMySQL;
 
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\Connection;
-use Swoole\Coroutine\MySQL;
+use Doctrine\DBAL\Exception;
+use Doctrine\Deprecations\Deprecation;
+use Doctrine\DBAL\Driver\PDO;
 
 
 final class Driver extends AbstractMySQLDriver
 {
-    public static SwooleConnection $connection;
-    public static bool $initializedConnection = false;
+    public static ConnectionPool $pool;
 
     public function connect(array $params, $username = null, $password = null, array $driverOptions = []): Connection
     {
-        if (isset(self::$connection)) {
-            return self::$connection;
+        if (!isset(self::$pool)) {
+            $poolSize = $params['poolSize'] ?? 10;
+            self::$pool = new ConnectionPool($poolSize);
         }
 
-        if (!self::$initializedConnection) {
+
+        if (!self::$pool->getConnection()) {
             $this->setConnection($params, $username, $password, $driverOptions);
-            self::$initializedConnection = true;
         }
 
 
-        return $this->connect($params, $username, $password, $driverOptions);
+        return self::$pool->getConnection();
     }
 
+    /**
+     * @throws Exception
+     */
     public function setConnection(array $params, $username = null, $password = null, array $driverOptions = []) : void
     {
-        go(static function () use($params, $username, $password, $driverOptions) {
-            $mysql = new MySQL();
+        try {
+            $conn = new PDO\Connection(
+                $this->constructPdoDsn($params),
+                $username,
+                $password,
+                $driverOptions
+            );
+        } catch (\PDOException $e) {
+            throw Exception::driverException($this, $e);
+        }
 
-            // Set the connection parameters
-            $host = $params['host'] ?? '127.0.0.1';
-            $port = $params['port'] ?? 3306;
-            $database = $params['dbname'] ?? '';
-            $user = $username ?? '';
-            $passwd = $password ?? '';
-
-            $mysql->connect([
-                'host' => $host,
-                'port' => $port,
-                'user' => $user,
-                'password' => $passwd,
-                'database' => $database,
-            ]);
-
-            $connection = new SwooleConnection($mysql);
-
-            self::$connection = $connection;
-        });
+        self::$pool->setConnection($conn);
     }
 
-    public function getName(): string
+    protected function constructPdoDsn(array $params)
     {
-        return 'swoole_mysql';
+        $dsn = 'mysql:';
+        if (isset($params['host']) && $params['host'] !== '') {
+            $dsn .= 'host=' . $params['host'] . ';';
+        }
+
+        if (isset($params['port'])) {
+            $dsn .= 'port=' . $params['port'] . ';';
+        }
+
+        if (isset($params['dbname'])) {
+            $dsn .= 'dbname=' . $params['dbname'] . ';';
+        }
+
+        if (isset($params['unix_socket'])) {
+            $dsn .= 'unix_socket=' . $params['unix_socket'] . ';';
+        }
+
+        if (isset($params['charset'])) {
+            $dsn .= 'charset=' . $params['charset'] . ';';
+        }
+
+        return $dsn;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @deprecated
+     */
+    public function getName()
+    {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'Driver::getName() is deprecated'
+        );
+
+        return 'pdo_mysql';
     }
 }
