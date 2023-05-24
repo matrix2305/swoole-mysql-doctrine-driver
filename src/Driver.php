@@ -31,28 +31,32 @@ final class Driver extends AbstractMySQLDriver
     public function setConnection(array $params, $username = null, $password = null, array $driverOptions = []) : void
     {
         if (class_exists('Laravel\Octane\Facades\Octane')) {
-            if (\Laravel\Octane\Facades\Octane::inWorker()) {
-                $mysql = new MySQL();
+            [$mysql] = \Laravel\Octane\Facades\Octane::concurrently([
+                function() use($params, $username, $password) {
+                    $mysql = new MySQL();
 
-                // Set the connection parameters
-                $host = $params['host'] ?? '127.0.0.1';
-                $port = $params['port'] ?? 3306;
-                $database = $params['dbname'] ?? '';
-                $user = $username ?? '';
-                $passwd = $password ?? '';
+                    // Set the connection parameters
+                    $host = $params['host'] ?? '127.0.0.1';
+                    $port = $params['port'] ?? 3306;
+                    $database = $params['dbname'] ?? '';
+                    $user = $username ?? '';
+                    $passwd = $password ?? '';
 
-                $mysql->connect([
-                    'host' => $host,
-                    'port' => $port,
-                    'user' => $user,
-                    'password' => $passwd,
-                    'database' => $database,
-                ]);
+                    $mysql->connect([
+                        'host' => $host,
+                        'port' => $port,
+                        'user' => $user,
+                        'password' => $passwd,
+                        'database' => $database,
+                    ]);
 
-                $connection = new SwooleConnection($mysql);
+                    return $mysql;
+                }
+            ]);
 
-                self::$pool->setConnection($connection);
-            }
+            $connection = new SwooleConnection($mysql);
+
+            self::$pool->setConnection($connection);
         } else {
             run(function () use($params, $username, $password, $driverOptions) {
                 $mysql = new MySQL();
